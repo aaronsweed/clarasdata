@@ -1,0 +1,186 @@
+---
+title: "Review and Summary of Galician thinning study"
+author: "Aaron Weed"
+date: "2023-06-23"
+output: html_document
+
+---
+
+```{r setup, include=FALSE, echo=FALSE,warning= FALSE, comment=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# load in packages
+library(magrittr)
+library(tidyverse)
+library(leaflet)
+library(readxl)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+library(formattable)
+library(RColorBrewer)
+library(sp)
+library(sf)
+library(rgdal)
+
+```
+
+## Experimental Design
+
+
+
+## Data Sets
+
+### Data: ClarasPlots 2018.v01.xlxs
+
+Data received from Matt in April 2023
+
+This Excel file contains sheets from several spreadsheets received from Fina: this should be the most updated version of the Begonte thinning plot data as of January 2017
+
+```{r import, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+#import as list
+path<-"./data/ClarasPlots_2018.v01.xlsx" 
+
+claras2017<-path %>%
+  excel_sheets() %>%
+  purrr::set_names() %>%
+  map(read_excel, path = path)
+
+meta<-as_tibble(claras2017$Metadata)
+
+# import sheets as dfs
+meta<-read_excel("data/ClarasPlots_2018.v01.xlsx", 
+    sheet = "Metadata")
+
+Info_dates<-read_excel("data/ClarasPlots_2018.v01.xlsx", 
+    sheet = "Info_Dates")
+  
+tree_data<-read_excel("data/ClarasPlots_2018.v01.xlsx", 
+    sheet = "All tree data")
+  
+coords028nz<-read_excel("data/ClarasPlots_2018.v01.xlsx", 
+    sheet = "arboles_028nz")
+  
+coords028gz<-read_excel("data/ClarasPlots_2018.v01.xlsx", 
+    sheet = "arboles_028gz")
+
+```
+
+#### Metadata
+
+```{r meta, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+kableExtra::kbl(meta, escape = FALSE, align= "l", caption = "Metadata") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+```
+
+#### Info_Dates
+
+```{r Info_dates, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+
+glimpse(Info_dates)
+
+kableExtra::kbl(Info_dates, escape = FALSE, align= "l", caption = "Info_dates") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+```
+
+#### All Tree data
+
+```{r tree_data, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+
+glimpse(tree_data)
+
+kableExtra::kbl(tree_data, escape = FALSE, align= "l", caption = "Info_dates") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+```
+
+#### Coordinates of 028nzcoords028 (P. radiata (NZ) tree locations)
+
+```{r coords028nz, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+
+glimpse(coords028nz)
+
+kableExtra::kbl(coords028nz, escape = FALSE, align= "l", caption = "Info_dates") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+plot(coords028nz)
+```
+
+#### Coordinates of 028nzcoords028 (P. radiata (Galician) tree locations)
+
+```{r coords028gz, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+
+glimpse(coords028gz)
+
+kableExtra::kbl(coords028gz, escape = FALSE, align= "l", caption = "Info_dates") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+plot(coords028gz)
+```
+
+### Data: Sanitation data from Fina and Flora
+
+```{r sirex_import, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+
+sirex <- read_excel("data/Datos sanitarios Begonte-Punxin.xlsx", 
+    sheet = "Begonte-Punxin")
+
+kableExtra::kbl(sirex, escape = FALSE, align= "l", caption = "Info_dates") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+sirex_metadata<-read_excel("data/Datos sanitarios Begonte-Punxin.xlsx", 
+    sheet = "metadata")
+
+kableExtra::kbl(sirex_metadata, escape = FALSE, align= "l", caption = "Metadata") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+```
+
+
+#### Sirex
+
+```{r sirex, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+kableExtra::kbl(sirex, escape = FALSE, align= "l", caption = "Presence/Absence of Sirex per tree") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+
+```
+
+
+### Data: 2017, 2018, and 2021 tree data from ALBERTO ROJO ALBORECA
+
+From:  ALBERTO ROJO ALBORECA
+
+I have been able to find and to clarify part of the information from the thinnings trial and I am sending you the following:
+
+- A folder (shp_1.zip) with information of the location of each tree within each plot (in the first measurement of 2003, with all the existing trees when the plots were installed). They are files for use with a GIS. Each tree is unequivocally identified by the number of its metal plate nailed to the stem. 
+
+- One file with the data of the first three inventories (2003, 2005 and 2007): Begonte_3_primeros_inventarios.xls 
+
+- Three files with data from the last three measurements (8º inventory in 2015, 9º inventory in 2018 and 10º inventory in 2021). The missing trees are those that have died or have been extracted in the two thinnings (2004 and 2011). 
+
+Please remember that the trial is duplicated in a plantation of Pinus radiata with seed from Galicia ("pais") and another with seed from New Zealand.
+ 
+I keep looking for the data of the other inventories (it is possible that some of them are not digitized).
+
+
+```{r claras, echo = FALSE,  fig.height=5.75, fig.width= 5.75, fig.align = 'left', warning= FALSE, comment=FALSE, message=FALSE}
+
+
+sirex <- read_excel("data/Datos sanitarios Begonte-Punxin.xlsx", 
+    sheet = "Begonte-Punxin")
+
+sirex_meta<-read_excel("data/Datos sanitarios Begonte-Punxin.xlsx", 
+    sheet = "metadata")
+
+kableExtra::kbl(sirex_meta, escape = FALSE, align= "l", caption = "Metadata") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+```
+
